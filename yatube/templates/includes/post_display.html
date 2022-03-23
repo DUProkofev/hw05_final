@@ -1,0 +1,34 @@
+{% load thumbnail %}
+<article>
+  <ul>
+    <li>
+      {% if post.author %}
+        Автор:
+        <a href={% url 'posts:profile' post.author.username %}>
+          {{ post.author.get_full_name }}
+        </a>
+      {% else %}
+        Автор: {{ post.author.get_full_name }}
+      {% endif %}
+    </li>
+    <li>
+      Дата публикации: {{ post.pub_date|date:"d E Y" }}
+    </li>
+  </ul>
+  {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+    <img class="card-img my-2" src="{{ im.url }}">
+  {% endthumbnail %} 
+  <p>
+    {{ post.text }}
+  </p>
+</article>
+{% if post.group %}
+  <a href={% url 'posts:group_list' post.group.slug %}>
+    Все записи группы
+  </a><br>
+{% endif %}
+{% if user.is_authenticated and user == post.author %}
+  <a href={% url 'posts:post_edit' post.id %}>
+    Редактировать пост
+  </a>
+{% endif %}

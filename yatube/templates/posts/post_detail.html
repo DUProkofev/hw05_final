@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %} 
+  Пост {{ post.text|truncatechars:30 }}
+{% endblock %}
+{% block content %}
+{% load thumbnail %} 
+  <div class="row">
+    <aside class="col-12 col-md-3">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          Дата публикации: {{ post.pub_date|date:"d E Y"}} 
+        </li>
+        {% if post.group %}    
+          <li class="list-group-item">
+            Группа: {{ post.group.title }} 
+              <a href={% url 'posts:group_list' post.group.slug %}>
+                все записи группы
+              </a>
+          </li>
+        {% endif %}
+        <li class="list-group-item">
+          {% if post.author %}
+            Автор:
+            <a href={% url 'posts:profile' post.author.username %}>
+              {{ post.author.get_full_name }}
+            </a>
+          {% else %}
+            Автор: {{ post.author.get_full_name }}
+          {% endif %}
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          Всего постов автора: <span >{{ post.author.posts.count }}</span>
+        </li>  
+        <li class="list-group-item">
+          <a href={% url 'posts:profile' post.author.username %}>
+            Все посты пользователя
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <article class="col-12 col-md-9">
+      {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+        <img class="card-img my-2" src="{{ im.url }}">
+      {% endthumbnail %}
+      <p>
+        {{ post.text }}
+      </p>
+      {% if user.is_authenticated and user == post.author %}  
+        <a href={% url 'posts:post_edit' post.id %}>
+          Редактировать пост
+        </a>
+      {% endif %}
+    </article>
+  </div> 
+{% endblock %}
