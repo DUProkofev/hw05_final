@@ -22,6 +22,11 @@
     {{ post.text }}
   </p>
 </article>
+{% if user.is_authenticated %}
+  <a href={% url 'posts:post_detail' post.id %}>
+    Открыть пост
+  </a><br>
+{% endif %}
 {% if post.group %}
   <a href={% url 'posts:group_list' post.group.slug %}>
     Все записи группы

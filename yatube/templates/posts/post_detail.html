@@ -35,6 +35,13 @@
           <a href={% url 'posts:profile' post.author.username %}>
             Все посты пользователя
           </a>
+        {% if user.is_authenticated and user == post.author %}  
+          <li class="list-group-item">
+            <a href={% url 'posts:post_edit' post.id %}>
+              Редактировать пост
+            </a>
+          </li>
+        {% endif %}
         </li>
       </ul>
     </aside>
@@ -45,11 +52,7 @@
       <p>
         {{ post.text }}
       </p>
-      {% if user.is_authenticated and user == post.author %}  
-        <a href={% url 'posts:post_edit' post.id %}>
-          Редактировать пост
-        </a>
-      {% endif %}
     </article>
+    {% include 'includes/comment.html' %}
   </div> 
 {% endblock %}
