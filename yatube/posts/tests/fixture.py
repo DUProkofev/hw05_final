@@ -58,9 +58,12 @@ class Fixture(TestCase):
             author=cls.user1,
             group=cls.group,
             image=cls.uploaded,
-            text='Test post {0} with group and image'.format(i)) for i in range(50)
+            text='Test post {0} with group and image'.format(i))
+            for i in range(50)
         )
-        cls.posts_without_group_and_image = Post.objects.bulk_create(posts_with_group_and_image)
+        cls.posts_with_group_and_image = Post.objects.bulk_create(
+            posts_with_group_and_image
+        )
         cls.reverse_index = reverse('posts:index')
         cls.reverse_group_list = reverse(
             'posts:group_list',

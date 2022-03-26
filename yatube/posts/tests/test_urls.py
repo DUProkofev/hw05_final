@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
+from django.urls import reverse
 
 from ..models import Group, Post
 
@@ -83,3 +84,28 @@ class URLTests(TestCase):
             with self.subTest(adress=adress):
                 response = self.auth_client1.get(adress)
                 self.assertTemplateUsed(response, template)
+
+    def test_add_comment_only_auth_user(self):
+        """Проверка, что комментировать
+        пост могут только авторизованные пользователи
+        """
+        '/auth/login/?next=/posts/2/comment/'
+        view = reverse(
+            'posts:add_comment',
+            kwargs={'post_id': self.post.id},
+        )
+        response = self.auth_client1.get(view)
+        self.assertRedirects(
+            response,
+            f'/posts/{self.post.id}/'
+        )
+        response = self.guest_client.get(view, follow=True)
+        self.assertRedirects(
+            response,
+            f'/auth/login/?next=/posts/{self.post.id}/comment/'
+        )
+
+    def test_404_get_custom_template(self):
+        response = self.guest_client.get('/nonexist-page/')
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, 'core/404.html')

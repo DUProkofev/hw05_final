@@ -2,6 +2,7 @@ from django import forms
 from django.conf import settings
 from django.core import paginator
 from django.test import Client
+from django.urls import reverse
 
 from ..models import Post
 from .fixture import Fixture
@@ -129,6 +130,7 @@ class ViewsTests(Fixture):
             self.post_with_group_1.group,
             self.group
         )
+
     def test_check_content_in_index(self):
         """Проверка переданного контента на index, profile, group"""
         check_list = [
@@ -137,9 +139,53 @@ class ViewsTests(Fixture):
             self.reverse_profile,
         ]
         post_with_image = Post.objects.filter(image__contains='posts/small')[1]
-        for reverse in check_list:
-            with self.subTest(page=reverse):
-                response = self.auth_client.get(reverse)
-                post = response.context['page_obj'].paginator.object_list.filter(id=post_with_image.id)
+        for reversed in check_list:
+            with self.subTest(page=reversed):
+                response = self.auth_client.get(reversed)
+                post = response.context['page_obj'].paginator.\
+                    object_list.filter(id=post_with_image.id)
                 self.assertEquals(post[0].image, post_with_image.image)
 
+    def test_new_comment_added_in_post_detail(self):
+        """Проверка, что новый комментарий появился на странице"""
+        comment_form = {
+            'text': 'Тестовый комментарий',
+        }
+
+        self.post_with_group_1
+        self.auth_client.post(
+            reverse(
+                'posts:add_comment',
+                kwargs={'post_id': self.post_with_group_1.id}
+            ),
+            comment_form,
+            follow=True
+        )
+        comment = self.auth_client.get(
+            reverse(
+                'posts:post_detail',
+                kwargs={'post_id': self.post_with_group_1.id}
+            )
+        )
+        self.assertEqual(
+            comment.context['comments'][0].text,
+            comment_form['text']
+        )
+
+    def test_cached_index(self):
+        """Проверка, что главная страница кэшируется"""
+        post = Post.objects.create(
+            text='Проверяем кэширование страницы',
+            author=self.user1,
+        )
+        cached = self.auth_client.get(
+            reverse('posts:index')
+        )
+        post.delete()
+        response = self.auth_client.get(
+            reverse('posts:index')
+        )
+        self.assertEqual(
+            cached.content,
+            response.content
+        )
