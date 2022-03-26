@@ -6,7 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from ..models import Group, Post, User
+from ..models import Group, Post, User, Follow
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
@@ -19,6 +19,8 @@ class Fixture(TestCase):
         super().setUpClass()
         cls.user1 = User.objects.create_user(username='user1')
         cls.user2 = User.objects.create_user(username='user2')
+        cls.user3 = User.objects.create_user(username='user3')
+        Follow.objects.create(user=cls.user1, author=cls.user3)
         cls.group = Group.objects.create(
             title='test group',
             slug='test',

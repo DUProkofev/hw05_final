@@ -4,7 +4,7 @@ from django.core import paginator
 from django.test import Client
 from django.urls import reverse
 
-from ..models import Post
+from ..models import Post, Follow
 from .fixture import Fixture
 
 
@@ -14,6 +14,10 @@ class ViewsTests(Fixture):
         self.guest_client = Client()
         self.auth_client = Client()
         self.auth_client.force_login(self.user1)
+        self.auth_client_2 = Client()
+        self.auth_client_2.force_login(self.user2)
+        self.auth_client_3 = Client()
+        self.auth_client_3.force_login(self.user3)
 
     def paginator_test(
         self,
@@ -144,7 +148,7 @@ class ViewsTests(Fixture):
                 response = self.auth_client.get(reversed)
                 post = response.context['page_obj'].paginator.\
                     object_list.filter(id=post_with_image.id)
-                self.assertEquals(post[0].image, post_with_image.image)
+                self.assertEqual(post[0].image, post_with_image.image)
 
     def test_new_comment_added_in_post_detail(self):
         """Проверка, что новый комментарий появился на странице"""
@@ -189,3 +193,39 @@ class ViewsTests(Fixture):
             cached.content,
             response.content
         )
+
+    def test_auth_user_can_follow_and_unfollow(self):
+        self.auth_client_2.get(
+            reverse(
+                'posts:profile_follow',
+                kwargs={'username': self.user1.username}
+            )
+        )
+        self.assertTrue(
+            Follow.objects.filter(
+                author=self.user1,
+                user=self.user2
+            ).exists()
+        )
+        self.auth_client_2.get(
+            reverse(
+                'posts:profile_unfollow',
+                kwargs={'username': self.user1.username}
+            )
+        )
+        self.assertFalse(
+            Follow.objects.filter(
+                author=self.user1,
+                user=self.user2
+            ).exists()
+        )
+
+    def test_new_post_show_for_follower_notshow_for_unfollower(self):
+        post = Post.objects.create(
+            text='Пост пользователя 3 тест видимости',
+            author=self.user3,
+        )
+        response = self.auth_client.get(reverse('posts:follow_index'))
+        self.assertIn(post, response.context['page_obj'].object_list)
+        response = self.auth_client_2.get(reverse('posts:follow_index'))
+        self.assertNotIn(post, response.context['page_obj'].object_list)
