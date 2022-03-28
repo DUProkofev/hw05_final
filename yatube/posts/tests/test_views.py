@@ -146,8 +146,8 @@ class ViewsTests(Fixture):
         for reversed in check_list:
             with self.subTest(page=reversed):
                 response = self.auth_client.get(reversed)
-                post = response.context['page_obj'].paginator.\
-                    object_list.filter(id=post_with_image.id)
+                post = (response.context['page_obj'].paginator.
+                        object_list.filter(id=post_with_image.id))
                 self.assertEqual(post[0].image, post_with_image.image)
 
     def test_new_comment_added_in_post_detail(self):

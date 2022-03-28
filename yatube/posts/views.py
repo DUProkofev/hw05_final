@@ -6,7 +6,7 @@ from django.shortcuts import (get_object_or_404,
                               render)
 
 from .forms import PostForm, CommentForm
-from .models import Group, Post, User, Comment, Follow
+from .models import Group, Post, User, Follow
 
 
 def paginator(request, model):
@@ -39,14 +39,11 @@ def profile(request, username):
     user = get_object_or_404(User, username=username)
     user_posts = user.posts.all()
     page_obj = paginator(request, user_posts)
-    following = False
-    if request.user.is_authenticated:
-        check = Follow.objects.filter(
-            user=request.user,
-            author=user
-        ).exists()
-        if check:
-            following = True
+    following = (request.user.is_authenticated
+                 and Follow.objects.filter(
+                     user=request.user,
+                     author=user
+                 ).exists())
     context = {
         'page_obj': page_obj,
         'author': user,
@@ -58,11 +55,11 @@ def profile(request, username):
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     form = CommentForm()
-    commetns = Comment.objects.filter(post=post_id)
+    comments = post.comments.all()
     context = {
         'post': post,
         'form': form,
-        'comments': commetns,
+        'comments': comments,
     }
     return render(request, 'posts/post_detail.html', context)
 
@@ -135,10 +132,6 @@ def profile_follow(request, username):
         return redirect(
             'posts:profile',
             author.username)
-    return redirect(
-        'posts:profile',
-        request.user.username
-    )
 
 
 @login_required
