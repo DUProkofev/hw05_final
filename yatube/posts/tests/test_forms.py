@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
-from django.test import Client
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client
 
 from ..models import Post
 from .fixture import Fixture

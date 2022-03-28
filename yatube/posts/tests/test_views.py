@@ -4,7 +4,7 @@ from django.core import paginator
 from django.test import Client
 from django.urls import reverse
 
-from ..models import Post, Follow
+from ..models import Follow, Post
 from .fixture import Fixture
 
 

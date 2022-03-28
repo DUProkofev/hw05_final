@@ -88,7 +88,7 @@ class Follow(models.Model):
     )
 
     class Meta:
-        contraints = [
+        constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
                 name='Dont_subscribe_twice'
