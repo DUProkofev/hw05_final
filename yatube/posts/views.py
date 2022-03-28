@@ -127,9 +127,9 @@ def profile_follow(request, username):
             user=request.user,
             author=author,
         )
-        return redirect(
-            'posts:profile',
-            author.username)
+    return redirect(
+        'posts:profile',
+        author.username)
 
 
 @login_required
