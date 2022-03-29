@@ -3,17 +3,17 @@
 {% block title %}
   Избранные авторы 
 {% endblock %}
-  {% block content %}
-    <div class="container py-5">        
-      <h1>Посты избранных авторов</h1>
-      {% for post in page_obj %}
-        {% include 'includes/post_display.html' %}
-        {% if not forloop.last %}
-          <hr>
-        {% endif %}
-        {% empty %}
-        <p>Нет подходящих записей.</p>
-      {% endfor %}
-      {% include 'includes/paginator.html' %}
-    </div> 
-  {% endblock %}
+{% block content %}
+  <div class="container py-5">        
+    <h1>Посты избранных авторов</h1>
+    {% for post in page_obj %}
+      {% include 'includes/post_display.html' %}
+      {% if not forloop.last %}
+        <hr>
+      {% endif %}
+      {% empty %}
+      <p>Нет подходящих записей.</p>
+    {% endfor %}
+    {% include 'includes/paginator.html' %}
+  </div> 
+{% endblock %}
